@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.9.179/pdf.min.js"></script>
+    <link rel="icon" href="/LOGOS/LIC LARGE TRANSPARENT.png" type="image/png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Local Icenian News</title>
@@ -18,7 +19,27 @@
             color: white;
             padding: 1rem 2rem;
             text-align: center;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        footer {
+        background-color: #0047ab;
+        color: white;
+        padding: 1rem 2rem;
+        text-align: center;
+        position: fixed; /* Fixes the footer to the bottom of the viewport */
+        bottom: 0; /* Positions the footer at the bottom */
+        left: 0; /* Ensures it spans from the left edge */
+        width: 100%; /* Makes the footer span the full width */
+        display: flex; /* Ensures child elements align correctly */
+        align-items: center;
+        gap: 10px;
+        z-index: 1000; /* Ensures it stays above other content */
+        }
+
+        header img {
+            height: 40px;
         }
         header h1 {
             margin: 0;
@@ -75,11 +96,12 @@
 </head>
 <body>
     <header>
+        <img src="/LOGOS/LIC LARGE TRANSPARENT.png" alt="Logo">
         <h1>Local Icenian News</h1>
     </header>
     <main>
         <div class="file-list">
-            <h2>Previous Issues</h2>
+            <h2>All Issues</h2>
             <ul id="fileList">
                 <!-- Dynamically populated -->
             </ul>
@@ -163,5 +185,9 @@
 </script>
 
 
+<footer>
+    <img src="/LOGOS/LIC LARGE TRANSPARENT.png" alt="Logo" style="height: 40px;">
+    <p>Local Icenian News &copy; 2025</p> 
+</footer>
 </body>
 </html>
