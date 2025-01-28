@@ -97,11 +97,14 @@
         // Fetch the list of files from the "previous" folder
         async function fetchFileList() {
             try {
-                const response = await fetch('previous/files.json'); // JSON file containing the list of files
+                const response = await fetch('previous/');
                 if (!response.ok) {
                     throw new Error(`Unable to fetch file list: ${response.statusText}`);
                 }
-                const files = await response.json();
+                const parser = new DOMParser();
+                const html = parser.parseFromString(await response.text(), 'text/html');
+                const links = Array.from(html.querySelectorAll('a')).filter(link => link.href.endsWith('.typst'));
+                const files = links.map(link => ({ name: link.textContent, path: link.getAttribute('href') }));
                 populateFileList(files);
             } catch (error) {
                 fileContent.textContent = error.message;
@@ -121,7 +124,7 @@
         // Load and display a file's content
         async function loadFile(file) {
             try {
-                const response = await fetch(`previous/${file.path}`);
+                const response = await fetch(file.path);
                 if (!response.ok) {
                     throw new Error(`Could not fetch file: ${response.statusText}`);
                 }
