@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Icenia Local News</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        header {
+            background-color: #0047ab;
+            color: white;
+            padding: 1rem 2rem;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        header h1 {
+            margin: 0;
+        }
+        main {
+            display: flex;
+            padding: 2rem;
+            gap: 2rem;
+        }
+        .file-list {
+            flex: 1;
+            max-width: 300px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .file-list h2 {
+            background-color: #0047ab;
+            color: white;
+            margin: 0;
+            padding: 1rem;
+            text-align: center;
+        }
+        .file-list ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        .file-list li {
+            padding: 1rem;
+            border-bottom: 1px solid #ddd;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .file-list li:hover {
+            background-color: #f0f0f0;
+        }
+        .file-viewer {
+            flex: 2;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            overflow-y: auto;
+            max-height: 600px;
+        }
+        .file-viewer h2 {
+            margin-top: 0;
+            border-bottom: 2px solid #0047ab;
+            padding-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Icenia Local News</h1>
+    </header>
+    <main>
+        <div class="file-list">
+            <h2>Previous Issues</h2>
+            <ul id="fileList">
+                <!-- Dynamically populated -->
+            </ul>
+        </div>
+        <div class="file-viewer">
+            <h2 id="fileTitle">Select an issue to view</h2>
+            <div id="fileContent">The content of the selected issue will be displayed here.</div>
+        </div>
+    </main>
+
+    <script>
+        const fileList = document.getElementById('fileList');
+        const fileTitle = document.getElementById('fileTitle');
+        const fileContent = document.getElementById('fileContent');
+
+        // Fetch the list of files from the "previous" folder
+        async function fetchFileList() {
+            try {
+                const response = await fetch('previous/files.json'); // JSON file containing the list of files
+                if (!response.ok) {
+                    throw new Error(`Unable to fetch file list: ${response.statusText}`);
+                }
+                const files = await response.json();
+                populateFileList(files);
+            } catch (error) {
+                fileContent.textContent = error.message;
+            }
+        }
+
+        // Populate the file list in the UI
+        function populateFileList(files) {
+            files.forEach(file => {
+                const li = document.createElement('li');
+                li.textContent = file.name;
+                li.onclick = () => loadFile(file);
+                fileList.appendChild(li);
+            });
+        }
+
+        // Load and display a file's content
+        async function loadFile(file) {
+            try {
+                const response = await fetch(`previous/${file.path}`);
+                if (!response.ok) {
+                    throw new Error(`Could not fetch file: ${response.statusText}`);
+                }
+                const content = await response.text();
+                fileTitle.textContent = file.name;
+                fileContent.textContent = content;
+            } catch (error) {
+                fileTitle.textContent = "Error";
+                fileContent.textContent = error.message;
+            }
+        }
+
+        // Initialize the file list
+        fetchFileList();
+    </script>
+</body>
+</html>
