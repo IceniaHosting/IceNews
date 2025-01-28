@@ -128,11 +128,11 @@
     }
 
 
-    // Render a file (PDF or Image)
-    async function renderFile(file) {
-        fileTitle.textContent = file.name;
+        // Render a file (PDF or Image)
+        async function renderFile(file) {
+        fileTitle.textContent = removeExtension(file.name); // Remove extension for the title
         fileContent.innerHTML = ''; // Clear previous content
-
+    
         if (file.path.endsWith('.pdf')) {
             // Render PDF using PDF.js
             const pdf = await pdfjsLib.getDocument(file.path).promise;
