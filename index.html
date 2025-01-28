@@ -90,55 +90,43 @@
     </main>
 
     <script>
-        const fileList = document.getElementById('fileList');
-        const fileTitle = document.getElementById('fileTitle');
-        const fileContent = document.getElementById('fileContent');
+    const fileList = document.getElementById('fileList');
+    const fileTitle = document.getElementById('fileTitle');
+    const fileContent = document.getElementById('fileContent');
 
-        // Fetch the list of files from the "previous" folder
-        async function fetchFileList() {
-            try {
-                const response = await fetch('previous/');
-                if (!response.ok) {
-                    throw new Error(`Unable to fetch file list: ${response.statusText}`);
-                }
-                const parser = new DOMParser();
-                const html = parser.parseFromString(await response.text(), 'text/html');
-                const links = Array.from(html.querySelectorAll('a')).filter(link => link.href.endsWith('.typst'));
-                const files = links.map(link => ({ name: link.textContent, path: link.getAttribute('href') }));
-                populateFileList(files);
-            } catch (error) {
-                fileContent.textContent = error.message;
+    // Manually define the list of files in the "previous" folder
+    const files = [
+        { name: "Issue 1", path: "previous/27-01-2025.typst" },
+    ];
+
+    // Populate the file list in the UI
+    function populateFileList(files) {
+        files.forEach(file => {
+            const li = document.createElement('li');
+            li.textContent = file.name;
+            li.onclick = () => loadFile(file);
+            fileList.appendChild(li);
+        });
+    }
+
+    // Load and display a file's content
+    async function loadFile(file) {
+        try {
+            const response = await fetch(file.path);
+            if (!response.ok) {
+                throw new Error(`Could not fetch file: ${response.statusText}`);
             }
+            const content = await response.text();
+            fileTitle.textContent = file.name;
+            fileContent.textContent = content;
+        } catch (error) {
+            fileTitle.textContent = "Error";
+            fileContent.textContent = error.message;
         }
+    }
 
-        // Populate the file list in the UI
-        function populateFileList(files) {
-            files.forEach(file => {
-                const li = document.createElement('li');
-                li.textContent = file.name;
-                li.onclick = () => loadFile(file);
-                fileList.appendChild(li);
-            });
-        }
-
-        // Load and display a file's content
-        async function loadFile(file) {
-            try {
-                const response = await fetch(file.path);
-                if (!response.ok) {
-                    throw new Error(`Could not fetch file: ${response.statusText}`);
-                }
-                const content = await response.text();
-                fileTitle.textContent = file.name;
-                fileContent.textContent = content;
-            } catch (error) {
-                fileTitle.textContent = "Error";
-                fileContent.textContent = error.message;
-            }
-        }
-
-        // Initialize the file list
-        fetchFileList();
-    </script>
+    // Initialize the file list
+    populateFileList(files);
+</script>
 </body>
 </html>
