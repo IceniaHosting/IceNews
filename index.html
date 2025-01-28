@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.9.179/pdf.min.js"></script>
-    <link rel="icon" href="/LOGOS/LIC LARGE TRANSPARENT.png" type="image/png">
+    <link rel="icon" href="LOGOS/LIC LARGE TRANSPARENT.png" type="image/png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Local Icenian News</title>
@@ -96,7 +96,7 @@
 </head>
 <body>
     <header>
-        <img src="/LOGOS/LIC LARGE TRANSPARENT.png" alt="Logo">
+        <img src="LOGOS/LIC LARGE TRANSPARENT.png" alt="Logo">
         <h1>Local Icenian News</h1>
     </header>
     <main>
@@ -119,7 +119,7 @@
     // Fetch the list of files from the text file
     async function fetchFileList() {
         try {
-            const response = await fetch('previous/filelist.txt');
+            const response = await fetch('LOGOS/filelist.txt');
             if (!response.ok) {
                 throw new Error(`Failed to fetch file list: ${response.statusText}`);
             }
@@ -149,9 +149,8 @@
         });
     }
 
-
-        // Render a file (PDF or Image)
-        async function renderFile(file) {
+    // Render a file (PDF or Image)
+    async function renderFile(file) {
         fileTitle.textContent = removeExtension(file.name); // Remove extension for the title
         fileContent.innerHTML = ''; // Clear previous content
     
@@ -184,9 +183,8 @@
     fetchFileList();
 </script>
 
-
 <footer>
-    <img src="/LOGOS/LIC LARGE TRANSPARENT.png" alt="Logo" style="height: 40px;">
+    <img src="LOGOS/LIC LARGE TRANSPARENT.png" alt="Logo" style="height: 40px;">
     <p>Local Icenian News &copy; 2025</p> 
 </footer>
 </body>
