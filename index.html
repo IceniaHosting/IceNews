@@ -94,44 +94,68 @@
     const fileTitle = document.getElementById('fileTitle');
     const fileContent = document.getElementById('fileContent');
 
-    // Manually define the list of files in the "previous" folder
-    const files = [
-        { name: "Issue 1", path: "previous/issue1.pdf" },
-        { name: "Issue 2", path: "previous/issue2.pdf" },
-        { name: "Issue 3", path: "previous/issue3.pdf" }
-    ];
+    // Fetch the list of files from the text file
+    async function fetchFileList() {
+        try {
+            const response = await fetch('previous/filelist.txt');
+            if (!response.ok) {
+                throw new Error(`Failed to fetch file list: ${response.statusText}`);
+            }
+            const text = await response.text();
+            const files = text.split('\n').filter(line => line.trim() !== '').map(path => ({
+                name: path.split('/').pop(),
+                path: path.trim()
+            }));
+            populateFileList(files);
+        } catch (error) {
+            fileContent.textContent = `Error: ${error.message}`;
+        }
+    }
 
     // Populate the file list in the UI
     function populateFileList(files) {
         files.forEach(file => {
             const li = document.createElement('li');
             li.textContent = file.name;
-            li.onclick = () => renderPDF(file.path);
+            li.onclick = () => renderFile(file);
             fileList.appendChild(li);
         });
     }
 
-    // Render the PDF using PDF.js
-    async function renderPDF(pdfPath) {
-        fileTitle.textContent = pdfPath.split('/').pop();
+    // Render a file (PDF or Image)
+    async function renderFile(file) {
+        fileTitle.textContent = file.name;
         fileContent.innerHTML = ''; // Clear previous content
 
-        const pdf = await pdfjsLib.getDocument(pdfPath).promise;
-        for (let i = 1; i <= pdf.numPages; i++) {
-            const page = await pdf.getPage(i);
-            const canvas = document.createElement('canvas');
-            const context = canvas.getContext('2d');
-            const viewport = page.getViewport({ scale: 1.5 });
-            canvas.width = viewport.width;
-            canvas.height = viewport.height;
-            await page.render({ canvasContext: context, viewport }).promise;
-            fileContent.appendChild(canvas);
+        if (file.path.endsWith('.pdf')) {
+            // Render PDF using PDF.js
+            const pdf = await pdfjsLib.getDocument(file.path).promise;
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                const viewport = page.getViewport({ scale: 1.5 });
+                canvas.width = viewport.width;
+                canvas.height = viewport.height;
+                await page.render({ canvasContext: context, viewport }).promise;
+                fileContent.appendChild(canvas);
+            }
+        } else if (file.path.match(/\.(png|jpe?g|gif)$/)) {
+            // Render image
+            const img = document.createElement('img');
+            img.src = file.path;
+            img.style.width = '100%';
+            img.style.maxWidth = '800px';
+            fileContent.appendChild(img);
+        } else {
+            fileContent.textContent = 'Unsupported file format.';
         }
     }
 
     // Initialize the file list
-    populateFileList(files);
+    fetchFileList();
 </script>
+
 
 </body>
 </html>
