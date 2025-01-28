@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.9.179/pdf.min.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Icenia Local News</title>
@@ -88,15 +89,16 @@
             <div id="fileContent">The content of the selected issue will be displayed here.</div>
         </div>
     </main>
-
-    <script>
+<script>
     const fileList = document.getElementById('fileList');
     const fileTitle = document.getElementById('fileTitle');
     const fileContent = document.getElementById('fileContent');
 
     // Manually define the list of files in the "previous" folder
     const files = [
-        { name: "Issue 1", path: "previous/27-01-2025.typst" },
+        { name: "Issue 1", path: "previous/issue1.pdf" },
+        { name: "Issue 2", path: "previous/issue2.pdf" },
+        { name: "Issue 3", path: "previous/issue3.pdf" }
     ];
 
     // Populate the file list in the UI
@@ -104,29 +106,32 @@
         files.forEach(file => {
             const li = document.createElement('li');
             li.textContent = file.name;
-            li.onclick = () => loadFile(file);
+            li.onclick = () => renderPDF(file.path);
             fileList.appendChild(li);
         });
     }
 
-    // Load and display a file's content
-    async function loadFile(file) {
-        try {
-            const response = await fetch(file.path);
-            if (!response.ok) {
-                throw new Error(`Could not fetch file: ${response.statusText}`);
-            }
-            const content = await response.text();
-            fileTitle.textContent = file.name;
-            fileContent.textContent = content;
-        } catch (error) {
-            fileTitle.textContent = "Error";
-            fileContent.textContent = error.message;
+    // Render the PDF using PDF.js
+    async function renderPDF(pdfPath) {
+        fileTitle.textContent = pdfPath.split('/').pop();
+        fileContent.innerHTML = ''; // Clear previous content
+
+        const pdf = await pdfjsLib.getDocument(pdfPath).promise;
+        for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            const viewport = page.getViewport({ scale: 1.5 });
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+            await page.render({ canvasContext: context, viewport }).promise;
+            fileContent.appendChild(canvas);
         }
     }
 
     // Initialize the file list
     populateFileList(files);
 </script>
+
 </body>
 </html>
