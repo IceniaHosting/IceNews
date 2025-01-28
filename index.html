@@ -112,15 +112,21 @@
         }
     }
 
+    // Function to remove the file extension from the file name
+    function removeExtension(filename) {
+        return filename.replace(/\.[^/.]+$/, ""); // Removes the last dot and everything after it
+    }
+    
     // Populate the file list in the UI
     function populateFileList(files) {
         files.forEach(file => {
             const li = document.createElement('li');
-            li.textContent = file.name;
+            li.textContent = removeExtension(file.name); // Remove extension before displaying
             li.onclick = () => renderFile(file);
             fileList.appendChild(li);
         });
     }
+
 
     // Render a file (PDF or Image)
     async function renderFile(file) {
