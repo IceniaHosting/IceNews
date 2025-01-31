@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -119,7 +120,7 @@
     // Fetch the list of files from the text file
     async function fetchFileList() {
         try {
-            const response = await fetch('LOGOS/filelist.txt');
+            const response = await fetch('previous/filelist.txt');
             if (!response.ok) {
                 throw new Error(`Failed to fetch file list: ${response.statusText}`);
             }
@@ -185,7 +186,7 @@
 
 <footer>
     <img src="LOGOS/LIC LARGE TRANSPARENT.png" alt="Logo" style="height: 40px;">
-    <p>Local Icenian News &copy; 2025 | <a href="https://iceniahosting.github.io/Purchase/" style="color: #ffcc00; font-weight: bold;">Get your website at Icenia Hosting</a></p> 
+    <p>Local Icenian News &copy; 2025</p> 
 </footer>
 </body>
 </html>
