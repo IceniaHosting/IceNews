@@ -112,77 +112,102 @@
             <div id="fileContent">The content of the selected issue will be displayed here.</div>
         </div>
     </main>
-<script>
-    const fileList = document.getElementById('fileList');
-    const fileTitle = document.getElementById('fileTitle');
-    const fileContent = document.getElementById('fileContent');
-
-    // Fetch the list of files from the text file
-    async function fetchFileList() {
-        try {
-            const response = await fetch('previous/filelist.txt');
-            if (!response.ok) {
-                throw new Error(`Failed to fetch file list: ${response.statusText}`);
-            }
-            const text = await response.text();
-            const files = text.split('\n').filter(line => line.trim() !== '').map(path => ({
-                name: path.split('/').pop(),
-                path: path.trim()
-            }));
-            populateFileList(files);
-        } catch (error) {
-            fileContent.textContent = `Error: ${error.message}`;
-        }
-    }
-
-    // Function to remove the file extension from the file name
-    function removeExtension(filename) {
-        return filename.replace(/\.[^/.]+$/, ""); // Removes the last dot and everything after it
-    }
+    <script>
+        const fileList = document.getElementById('fileList');
+        const fileTitle = document.getElementById('fileTitle');
+        const fileContent = document.getElementById('fileContent');
     
-    // Populate the file list in the UI
-    function populateFileList(files) {
-        files.forEach(file => {
-            const li = document.createElement('li');
-            li.textContent = removeExtension(file.name); // Remove extension before displaying
-            li.onclick = () => renderFile(file);
-            fileList.appendChild(li);
+        // Function to get issue number from URL
+        function getIssueFromURL() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('issue'); // Get the "issue" parameter
+        }
+    
+        // Function to remove file extension from filename
+        function removeExtension(filename) {
+            return filename.replace(/\.[^/.]+$/, ""); // Removes the last dot and everything after it
+        }
+    
+        // Function to update the URL without reloading the page
+        function updateURL(issueNumber) {
+            const newURL = `${window.location.pathname}?issue=${issueNumber}`;
+            history.pushState({ issue: issueNumber }, '', newURL);
+        }
+    
+        // Render a file (PDF)
+        async function renderIssue(issueNumber) {
+            updateURL(issueNumber); // Update URL when issue is selected
+            const filePath = `previous/Local Icenian News ${issueNumber}.pdf`;
+            fileTitle.textContent = `Local Icenian News ${issueNumber}`;
+            fileContent.innerHTML = '';
+    
+            try {
+                const pdf = await pdfjsLib.getDocument(filePath).promise;
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+                    const viewport = page.getViewport({ scale: 1.5 });
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
+                    await page.render({ canvasContext: context, viewport }).promise;
+                    fileContent.appendChild(canvas);
+                }
+            } catch (error) {
+                fileContent.innerHTML = `<p style="color: red;">Error loading issue ${issueNumber}: File not found.</p>`;
+            }
+        }
+    
+        // Fetch the list of files from the text file
+        async function fetchFileList() {
+            try {
+                const response = await fetch('previous/filelist.txt');
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch file list: ${response.statusText}`);
+                }
+                const text = await response.text();
+                const files = text.split('\n').filter(line => line.trim() !== '').map(path => ({
+                    name: path.split('/').pop(),
+                    path: path.trim()
+                }));
+                populateFileList(files);
+    
+                // If there's an issue number in the URL, open it
+                const issueNumber = getIssueFromURL();
+                if (issueNumber) {
+                    renderIssue(issueNumber);
+                }
+            } catch (error) {
+                fileContent.textContent = `Error: ${error.message}`;
+            }
+        }
+    
+        // Populate the file list in the UI
+        function populateFileList(files) {
+            files.forEach(file => {
+                const li = document.createElement('li');
+                const issueNumber = removeExtension(file.name).replace('Local Icenian News ', '');
+                li.textContent = `Issue ${issueNumber}`; // Display as "Issue X.X"
+                li.onclick = () => renderIssue(issueNumber);
+                fileList.appendChild(li);
+            });
+        }
+    
+        // Handle back/forward navigation to load the correct issue
+        window.addEventListener('popstate', (event) => {
+            const issueNumber = event.state ? event.state.issue : null;
+            if (issueNumber) {
+                renderIssue(issueNumber);
+            } else {
+                fileTitle.textContent = "Select an issue to view";
+                fileContent.innerHTML = "The content of the selected issue will be displayed here.";
+            }
         });
-    }
-
-    // Render a file (PDF or Image)
-    async function renderFile(file) {
-        fileTitle.textContent = removeExtension(file.name); // Remove extension for the title
-        fileContent.innerHTML = ''; // Clear previous content
     
-        if (file.path.endsWith('.pdf')) {
-            // Render PDF using PDF.js
-            const pdf = await pdfjsLib.getDocument(file.path).promise;
-            for (let i = 1; i <= pdf.numPages; i++) {
-                const page = await pdf.getPage(i);
-                const canvas = document.createElement('canvas');
-                const context = canvas.getContext('2d');
-                const viewport = page.getViewport({ scale: 1.5 });
-                canvas.width = viewport.width;
-                canvas.height = viewport.height;
-                await page.render({ canvasContext: context, viewport }).promise;
-                fileContent.appendChild(canvas);
-            }
-        } else if (file.path.match(/\.(png|jpe?g|gif)$/)) {
-            // Render image
-            const img = document.createElement('img');
-            img.src = file.path;
-            img.style.width = '100%';
-            img.style.maxWidth = '800px';
-            fileContent.appendChild(img);
-        } else {
-            fileContent.textContent = 'Unsupported file format.';
-        }
-    }
-
-    // Initialize the file list
-    fetchFileList();
-</script>
+        // Initialize the file list
+        fetchFileList();
+    </script>
+    
 
 <footer>
     <img src="LOGOS/LIC LARGE TRANSPARENT.png" alt="Logo" style="height: 40px;">
