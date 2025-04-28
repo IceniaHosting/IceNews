@@ -111,7 +111,7 @@
         </div>
     </main>
 
-        <script>
+    <script>
         const fileList = document.getElementById('fileList');
         const fileTitle = document.getElementById('fileTitle');
         const fileContent = document.getElementById('fileContent');
@@ -197,17 +197,18 @@
                 const rawName = removeExtension(file.name);
                 let issueNumber = '';
     
+                // Checking for both formats: "Local Icenian News" and "Icenian News Network"
                 if (rawName.startsWith('Local Icenian News ')) {
                     issueNumber = rawName.replace('Local Icenian News ', '');
                 } else if (rawName.startsWith('Icenian News Network ')) {
                     issueNumber = rawName.replace('Icenian News Network ', '');
-                } else {
-                    issueNumber = rawName; // fallback
                 }
     
-                li.textContent = `Issue ${issueNumber}`;
-                li.onclick = () => renderIssue(issueNumber);
-                fileList.appendChild(li);
+                if (issueNumber) {
+                    li.textContent = `Issue ${issueNumber}`; // Display as "Issue X.X"
+                    li.onclick = () => renderIssue(issueNumber);
+                    fileList.appendChild(li);
+                }
             });
         }
     
