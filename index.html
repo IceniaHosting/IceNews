@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,7 +5,7 @@
     <link rel="icon" href="LOGOS/LIC LARGE TRANSPARENT.png" type="image/png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Local Icenian News</title>
+    <title>Icenian News Network</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -25,21 +24,20 @@
             gap: 10px;
         }
         footer {
-        background-color: #0047ab;
-        color: white;
-        padding: 1rem 2rem;
-        text-align: center;
-        position: fixed; /* Fixes the footer to the bottom of the viewport */
-        bottom: 0; /* Positions the footer at the bottom */
-        left: 0; /* Ensures it spans from the left edge */
-        width: 100%; /* Makes the footer span the full width */
-        display: flex; /* Ensures child elements align correctly */
-        align-items: center;
-        gap: 10px;
-        z-index: 1000; /* Ensures it stays above other content */
+            background-color: #0047ab;
+            color: white;
+            padding: 1rem 2rem;
+            text-align: center;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
         }
-
-        header img {
+        header img, footer img {
             height: 40px;
         }
         header h1 {
@@ -98,7 +96,7 @@
 <body>
     <header>
         <img src="LOGOS/LIC LARGE TRANSPARENT.png" alt="Logo">
-        <h1>Local Icenian News</h1>
+        <h1>Icenian News Network</h1>
     </header>
     <main>
         <div class="file-list">
@@ -112,53 +110,63 @@
             <div id="fileContent">The content of the selected issue will be displayed here.</div>
         </div>
     </main>
+
     <script>
         const fileList = document.getElementById('fileList');
         const fileTitle = document.getElementById('fileTitle');
         const fileContent = document.getElementById('fileContent');
-    
-        // Function to get issue number from URL
+
         function getIssueFromURL() {
             const params = new URLSearchParams(window.location.search);
-            return params.get('issue'); // Get the "issue" parameter
+            return params.get('issue');
         }
-    
-        // Function to remove file extension from filename
+
         function removeExtension(filename) {
-            return filename.replace(/\.[^/.]+$/, ""); // Removes the last dot and everything after it
+            return filename.replace(/\.[^/.]+$/, "");
         }
-    
-        // Function to update the URL without reloading the page
+
+        function extractIssueNumber(name) {
+            return name
+                .replace(/^Local Icenian News /, '')
+                .replace(/^Icenian News Network /, '')
+                .trim();
+        }
+
         function updateURL(issueNumber) {
             const newURL = `${window.location.pathname}?issue=${issueNumber}`;
             history.pushState({ issue: issueNumber }, '', newURL);
         }
-    
-        // Render a file (PDF)
+
         async function renderIssue(issueNumber) {
-            updateURL(issueNumber); // Update URL when issue is selected
-            const filePath = `previous/Local Icenian News ${issueNumber}.pdf`;
-            fileTitle.textContent = `Local Icenian News ${issueNumber}`;
-            fileContent.innerHTML = '';
-    
-            try {
-                const pdf = await pdfjsLib.getDocument(filePath).promise;
-                for (let i = 1; i <= pdf.numPages; i++) {
-                    const page = await pdf.getPage(i);
-                    const canvas = document.createElement('canvas');
-                    const context = canvas.getContext('2d');
-                    const viewport = page.getViewport({ scale: 1.5 });
-                    canvas.width = viewport.width;
-                    canvas.height = viewport.height;
-                    await page.render({ canvasContext: context, viewport }).promise;
-                    fileContent.appendChild(canvas);
+            updateURL(issueNumber);
+            const filePaths = [
+                `previous/Icenian News Network ${issueNumber}.pdf`,
+                `previous/Local Icenian News ${issueNumber}.pdf`
+            ];
+            fileTitle.textContent = `Issue ${issueNumber}`;
+            fileContent.LICerHTML = '';
+
+            for (const filePath of filePaths) {
+                try {
+                    const pdf = await pdfjsLib.getDocument(filePath).promise;
+                    for (let i = 1; i <= pdf.numPages; i++) {
+                        const page = await pdf.getPage(i);
+                        const canvas = document.createElement('canvas');
+                        const context = canvas.getContext('2d');
+                        const viewport = page.getViewport({ scale: 1.5 });
+                        canvas.width = viewport.width;
+                        canvas.height = viewport.height;
+                        await page.render({ canvasContext: context, viewport }).promise;
+                        fileContent.appendChild(canvas);
+                    }
+                    return;
+                } catch (error) {
+                    // Try next filename
                 }
-            } catch (error) {
-                fileContent.innerHTML = `<p style="color: red;">Error loading issue ${issueNumber}: File not found.</p>`;
             }
+            fileContent.LICerHTML = `<p style="color: red;">Error loading issue ${issueNumber}: File not found.</p>`;
         }
-    
-        // Fetch the list of files from the text file
+
         async function fetchFileList() {
             try {
                 const response = await fetch('previous/filelist.txt');
@@ -171,8 +179,7 @@
                     path: path.trim()
                 }));
                 populateFileList(files);
-    
-                // If there's an issue number in the URL, open it
+
                 const issueNumber = getIssueFromURL();
                 if (issueNumber) {
                     renderIssue(issueNumber);
@@ -181,37 +188,33 @@
                 fileContent.textContent = `Error: ${error.message}`;
             }
         }
-    
-        // Populate the file list in the UI
+
         function populateFileList(files) {
             files.forEach(file => {
                 const li = document.createElement('li');
-                const issueNumber = removeExtension(file.name).replace('Local Icenian News ', '');
-                li.textContent = `Issue ${issueNumber}`; // Display as "Issue X.X"
+                const issueNumber = extractIssueNumber(removeExtension(file.name));
+                li.textContent = `Issue ${issueNumber}`;
                 li.onclick = () => renderIssue(issueNumber);
                 fileList.appendChild(li);
             });
         }
-    
-        // Handle back/forward navigation to load the correct issue
+
         window.addEventListener('popstate', (event) => {
             const issueNumber = event.state ? event.state.issue : null;
             if (issueNumber) {
                 renderIssue(issueNumber);
             } else {
                 fileTitle.textContent = "Select an issue to view";
-                fileContent.innerHTML = "The content of the selected issue will be displayed here.";
+                fileContent.LICerHTML = "The content of the selected issue will be displayed here.";
             }
         });
-    
-        // Initialize the file list
+
         fetchFileList();
     </script>
-    
 
-<footer>
-    <img src="LOGOS/LIC LARGE TRANSPARENT.png" alt="Logo" style="height: 40px;">
-    <p>Local Icenian News &copy; 2025</p> 
-</footer>
+    <footer>
+        <img src="LOGOS/LIC LARGE TRANSPARENT.png" alt="Logo">
+        <p>Icenian News Network &copy; 2025</p>
+    </footer>
 </body>
 </html>
