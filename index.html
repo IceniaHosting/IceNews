@@ -6,92 +6,104 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Icenian News Network</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-            color: #333;
-        }
-        header {
-            background-color: #0047ab;
-            color: white;
-            padding: 1rem 2rem;
-            text-align: center;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        footer {
-            background-color: #0047ab;
-            color: white;
-            padding: 1rem 2rem;
-            text-align: center;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            z-index: 1000;
-        }
-        header img, footer img {
-            height: 40px;
-        }
-        header h1 {
-            margin: 0;
-        }
-        main {
-            display: flex;
-            padding: 2rem;
-            gap: 2rem;
-        }
-        .file-list {
-            flex: 1;
-            max-width: 300px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
-        .file-list h2 {
-            background-color: #0047ab;
-            color: white;
-            margin: 0;
-            padding: 1rem;
-            text-align: center;
-        }
-        .file-list ul {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-        }
-        .file-list li {
-            padding: 1rem;
-            border-bottom: 1px solid #ddd;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        .file-list li:hover {
-            background-color: #f0f0f0;
-        }
-        .file-viewer {
-            flex: 2;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            padding: 1rem;
-            overflow-y: auto;
-            max-height: 100%;
-        }
-        .file-viewer h2 {
-            margin-top: 0;
-            border-bottom: 2px solid #0047ab;
-            padding-bottom: 0.5rem;
-        }
-    </style>
+<style>
+    html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        color: #333;
+        overflow: hidden;
+    }
+    header {
+        background-color: #0047ab;
+        color: white;
+        padding: 1rem 2rem;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    footer {
+        background-color: #0047ab;
+        color: white;
+        padding: 1rem 2rem;
+        text-align: center;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        z-index: 1000;
+    }
+    header img, footer img {
+        height: 40px;
+    }
+    header h1 {
+        margin: 0;
+    }
+    main {
+        display: flex;
+        padding: 2rem;
+        gap: 2rem;
+        height: calc(100vh - 160px); /* header + footer + padding */
+        box-sizing: border-box;
+    }
+    .file-list {
+        flex: 1;
+        max-width: 300px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+    }
+    .file-list h2 {
+        background-color: #0047ab;
+        color: white;
+        margin: 0;
+        padding: 1rem;
+        text-align: center;
+        flex-shrink: 0;
+    }
+    .file-list ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        overflow-y: auto;
+        flex-grow: 1;
+    }
+    .file-list li {
+        padding: 1rem;
+        border-bottom: 1px solid #ddd;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    .file-list li:hover {
+        background-color: #f0f0f0;
+    }
+    .file-viewer {
+        flex: 2;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 1rem;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+    }
+    .file-viewer h2 {
+        margin-top: 0;
+        border-bottom: 2px solid #0047ab;
+        padding-bottom: 0.5rem;
+        flex-shrink: 0;
+    }
+</style>
+
 </head>
 <body>
     <header>
